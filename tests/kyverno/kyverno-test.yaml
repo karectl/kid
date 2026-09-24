@@ -1,0 +1,75 @@
+# Offline tests for the policies in gitops/kyverno.
+#   kyverno test tests/kyverno
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: kid-project-policies
+policies:
+  - ../../gitops/kyverno/restrict-image-registries.yaml
+  - ../../gitops/kyverno/disallow-privileged.yaml
+  - ../../gitops/kyverno/require-project-label.yaml
+  - ../../gitops/kyverno/disallow-latest-tag.yaml
+  - ../../gitops/kyverno/generate-default-deny.yaml
+resources:
+  - resources.yaml
+variables: values.yaml
+results:
+  # A workspace as KubeSpawner creates it passes everything.
+  - policy: restrict-image-registries
+    rule: approved-registry-only
+    resources: [workspace]
+    kind: Pod
+    result: pass
+  - policy: disallow-privileged-workspaces
+    rule: no-privileged-containers
+    resources: [workspace]
+    kind: Pod
+    result: pass
+  - policy: disallow-privileged-workspaces
+    rule: no-host-namespaces-or-paths
+    resources: [workspace]
+    kind: Pod
+    result: pass
+  - policy: require-project-label
+    rule: project-label-matches-namespace
+    resources: [workspace]
+    kind: Pod
+    result: pass
+  - policy: disallow-latest-tag
+    rule: require-pinned-tag
+    resources: [workspace]
+    kind: Pod
+    result: pass
+  # Lab 08: `kubectl run evil --image=nginx` in a project.
+  - policy: restrict-image-registries
+    rule: approved-registry-only
+    resources: [evil]
+    kind: Pod
+    result: fail
+  - policy: require-project-label
+    rule: project-label-matches-namespace
+    resources: [evil, wrong-project]
+    kind: Pod
+    result: fail
+  - policy: disallow-privileged-workspaces
+    rule: no-privileged-containers
+    resources: [privileged]
+    kind: Pod
+    result: fail
+  - policy: disallow-privileged-workspaces
+    rule: no-host-namespaces-or-paths
+    resources: [hostpath]
+    kind: Pod
+    result: fail
+  - policy: disallow-latest-tag
+    rule: require-pinned-tag
+    resources: [latest]
+    kind: Pod
+    result: fail
+  # Any namespace labelled as a project gets a default-deny policy.
+  - policy: generate-project-default-deny
+    rule: default-deny
+    resources: [project-alpha]
+    kind: Namespace
+    generatedResource: expected-default-deny.yaml
+    result: pass

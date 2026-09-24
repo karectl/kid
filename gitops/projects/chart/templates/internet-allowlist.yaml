@@ -1,0 +1,30 @@
+{{- if .Values.internetAllowlist }}
+# Opt-in internet access for this project's workspaces, by DNS name.
+# Cilium learns the IP addresses behind these names from the DNS answers it
+# proxies (see the "dns" rule in networkpolicy.yaml) and allows only those.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: internet-allowlist
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+spec:
+  description: Approved external services for project {{ .Values.name }}.
+  endpointSelector:
+    matchLabels:
+      component: singleuser-server
+  egress:
+    - toFQDNs:
+        {{- range .Values.internetAllowlist }}
+        {{- if contains "*" . }}
+        - matchPattern: {{ . | quote }}
+        {{- else }}
+        - matchName: {{ . | quote }}
+        {{- end }}
+        {{- end }}
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+{{- end }}

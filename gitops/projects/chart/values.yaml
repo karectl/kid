@@ -24,8 +24,10 @@ quota:
 # Size of the project shared volume mounted at ~/shared in every workspace.
 sharedStorage: 1Gi
 
-# Per-user home directory size.
-homeStorage: 1Gi
+# Internet egress allow-list. Empty (the default) means no internet at all.
+# Each entry is a DNS name (or a pattern such as "*.example.org") that
+# workspaces in this project may reach on port 443. See docs lab 04.
+internetAllowlist: []
 
 # Workspace sizes: "guarantee" is the request (reserved on the node), "limit" is
 # the hard ceiling (CPU is throttled, memory over the limit is OOM-killed).

@@ -1,0 +1,5 @@
+# Versions shipped in the Z2JH 4.0.0 hub image.
+jupyterhub==5.2.1
+jupyterhub-kubespawner==7.0.0
+oauthenticator==17.1.0
+pytest
