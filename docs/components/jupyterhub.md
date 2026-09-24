@@ -30,6 +30,7 @@ JupyterHub has no built-in idea of a "project". KID adds one in `tre_config.py`:
 
 ```python
 c.KubeSpawner.profile_list = project_profiles     # what the user is offered
+c.KubeSpawner.options_form = spawn_form           # the picker, or "not a member of any project"
 c.KubeSpawner.pre_spawn_hook = require_a_project  # refuse users with no project
 ```
 
@@ -67,9 +68,8 @@ resources and shortens the window in which an unattended session could be misuse
 ## Admin panel
 
 Log in as `tre-admin` (member of `tre-admins`, mapped via `admin_groups`) and go to
-**`/jupyter/hub/admin`**. `tre-admin` isn't in any project, so the automatic spawn after login fails
-with a "not a member of any research project" message. That's expected; the admin panel still
-works. From there you can see all users and their groups, and start or stop their servers.
+**`/jupyter/hub/admin`**. `tre-admin` isn't in any project, so the spawn page after login says "You are not a
+member of any research project". That's expected; the admin panel still works. From there you can see all users and their groups, and start or stop their servers.
 
 !!! info "Admins can access user servers"
     By default JupyterHub admins can open other users' servers. That is data access. In a real

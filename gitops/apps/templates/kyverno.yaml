@@ -23,6 +23,11 @@ spec:
           enabled: false
         policyReportsCleanup:
           enabled: false
+        # Argo CD would run this post-upgrade hook as a PostSync Job on every
+        # sync; a fresh install has no old CRD versions to migrate.
+        crds:
+          migration:
+            enabled: false
         # Not used in the labs; saves ~100 MB.
         cleanupController:
           enabled: false

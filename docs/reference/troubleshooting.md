@@ -58,7 +58,7 @@ Start with `tre status`. It shows Argo CD application health and any pod that is
 
 ## Workspaces
 
-??? question "Spawn failed: *not a member of any research project*"
+??? question "*You are not a member of any research project*"
     Working as designed (researcher4, tre-admin). Add the user to a project group in Keycloak.
 
 ??? question "Spawn times out / pod `Pending`"

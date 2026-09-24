@@ -149,9 +149,16 @@ async def test_users_without_a_project_cannot_spawn(config):
 @run_async
 async def test_spawn_form_lists_only_member_projects(config):
     s = spawner(config, ["alpha"])
-    form = await s._render_options_form_dynamically(s)
+    form = await s.options_form(s)
     assert "Project Alpha" in form
     assert "Project Beta" not in form
+
+
+@run_async
+async def test_spawn_form_explains_when_user_has_no_project(config):
+    s = spawner(config, ["unrelated"])
+    form = await s.options_form(s)
+    assert "not a member of any research project" in form
 
 
 def test_workspaces_reach_hub_by_fqdn(config):

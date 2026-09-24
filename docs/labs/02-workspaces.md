@@ -71,9 +71,12 @@ researcher3's pod is in `project-beta` with a 1 CPU / 2 GiB limit.
 
 ## 5. A user in no project
 
-In another private window log in as `researcher4`. The spawn fails with:
+In another private window log in as `researcher4`. Instead of a launch menu you get:
 
-> researcher4 is not a member of any research project. Ask a TRE administrator...
+> **You are not a member of any research project.** Ask a TRE administrator to add you to a
+> project group in Keycloak, then log out and back in.
+
+Click **Start** anyway: the hub refuses (`pre_spawn_hook`), and no pod or volume is created.
 
 Look for the reason in the hub log:
 

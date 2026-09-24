@@ -133,7 +133,26 @@ async def require_a_project(spawner):
         )
 
 
+NO_PROJECT_MESSAGE = (
+    '<div class="alert alert-warning" role="alert">'
+    "<strong>You are not a member of any research project.</strong> "
+    "Ask a TRE administrator to add you to a project group in Keycloak, "
+    "then log out and back in."
+    "</div>"
+)
+
+
+async def spawn_form(spawner):
+    """The spawn page: the project/size picker, or an explanation if the user
+    has no projects (KubeSpawner would otherwise show an empty form)."""
+    profiles = await project_profiles(spawner)
+    if not profiles:
+        return NO_PROJECT_MESSAGE
+    return spawner._render_options_form(profiles)
+
+
 c.KubeSpawner.profile_list = project_profiles
+c.KubeSpawner.options_form = spawn_form
 c.KubeSpawner.pre_spawn_hook = require_a_project
 
 # Workspaces run in other namespaces, so they must reach the hub by its

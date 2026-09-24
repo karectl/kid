@@ -54,7 +54,7 @@ cmd_status() {
 cmd_workspaces() {
   bold "Notebook servers (component=singleuser-server)"
   kubectl get pods -A -l component=singleuser-server \
-    -o custom-columns='NAMESPACE:.metadata.namespace,POD:.metadata.name,USER:.metadata.annotations.hub\.jupyter\.org/username,STATUS:.status.phase,CPU_LIM:.spec.containers[0].resources.limits.cpu,MEM_LIM:.spec.containers[0].resources.limits.memory,NODE_IP:.status.podIP'
+    -o custom-columns='NAMESPACE:.metadata.namespace,POD:.metadata.name,USER:.metadata.annotations.hub\.jupyter\.org/username,STATUS:.status.phase,CPU_LIM:.spec.containers[0].resources.limits.cpu,MEM_LIM:.spec.containers[0].resources.limits.memory,POD_IP:.status.podIP'
 }
 
 cmd_usage() {

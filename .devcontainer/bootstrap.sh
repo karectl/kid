@@ -139,11 +139,12 @@ if [ -z "${KID_GITOPS_REPO:-}" ]; then
     KID_GITOPS_REPO="https://github.com/${GITHUB_REPOSITORY}.git"
   else
     KID_GITOPS_REPO="$(git -C "${ROOT}" remote get-url origin 2>/dev/null || true)"
-    # git@github.com:owner/repo.git -> https://github.com/owner/repo.git
-    KID_GITOPS_REPO="$(echo "${KID_GITOPS_REPO}" | sed -E 's#^git@([^:]+):#https://\1/#')"
     KID_GITOPS_REPO="${KID_GITOPS_REPO:-https://github.com/karectl/kid.git}"
   fi
 fi
+# Argo CD reads public repos over HTTPS without credentials:
+# git@github.com:owner/repo.git -> https://github.com/owner/repo.git
+KID_GITOPS_REPO="$(echo "${KID_GITOPS_REPO}" | sed -E 's#^git@([^:]+):#https://\1/#')"
 case "${KID_GITOPS_REPO}" in *.git) ;; *) KID_GITOPS_REPO="${KID_GITOPS_REPO}.git" ;; esac
 
 if [ -z "${KID_GITOPS_REVISION:-}" ]; then
@@ -151,8 +152,10 @@ if [ -z "${KID_GITOPS_REVISION:-}" ]; then
   [ "${KID_GITOPS_REVISION}" = "HEAD" ] && KID_GITOPS_REVISION="$(git -C "${ROOT}" rev-parse HEAD)"
 fi
 
-if ! git ls-remote --exit-code "${KID_GITOPS_REPO}" "${KID_GITOPS_REVISION}" >/dev/null 2>&1 \
-   && ! git ls-remote "${KID_GITOPS_REPO}" 2>/dev/null | grep -q "^${KID_GITOPS_REVISION}"; then
+# Never prompt for credentials (a private fork would otherwise hang here).
+lsremote() { GIT_TERMINAL_PROMPT=0 timeout 30 git ls-remote "$@" 2>/dev/null; }
+if ! lsremote --exit-code "${KID_GITOPS_REPO}" "${KID_GITOPS_REVISION}" >/dev/null \
+   && ! lsremote "${KID_GITOPS_REPO}" | grep -q "^${KID_GITOPS_REVISION}"; then
   warn "'${KID_GITOPS_REVISION}' was not found in ${KID_GITOPS_REPO}."
   warn "Argo CD reads from GitHub, not from your disk: push the branch, or set"
   warn "KID_GITOPS_REPO / KID_GITOPS_REVISION and re-run this script."
