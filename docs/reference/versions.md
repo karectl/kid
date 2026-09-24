@@ -6,6 +6,7 @@
 | Cilium | 1.16.5 | `.devcontainer/versions.env` |
 | Cilium CLI | v0.16.22 | `devcontainer.Dockerfile` |
 | Hubble CLI | v1.16.5 | `devcontainer.Dockerfile` |
+| Hubble UI | v0.13.3 (overrides Cilium's default; older versions 404 under `/hubble/`) | `.devcontainer/versions.env` |
 | Argo CD | v3.0.0 | `versions.env` (server), `devcontainer.Dockerfile` (CLI) |
 | Keycloak | 26.0.7 | `gitops/keycloak/deployment.yaml` |
 | Zero to JupyterHub chart | 4.0.0 (JupyterHub 5.2.1, KubeSpawner 7.0.0, OAuthenticator 17.1.0) | `gitops/jupyterhub/kustomization.yaml` |

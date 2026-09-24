@@ -46,11 +46,17 @@ CILIUM_FLAGS=(
   --set hubble.relay.enabled=true
   --set hubble.ui.enabled=true
   --set hubble.ui.baseUrl=/hubble/
+  --set hubble.ui.frontend.image.tag="${HUBBLE_UI_VERSION}"
+  --set hubble.ui.frontend.image.digest="${HUBBLE_UI_DIGEST}"
+  --set hubble.ui.backend.image.tag="${HUBBLE_UI_VERSION}"
+  --set hubble.ui.backend.image.digest="${HUBBLE_UI_BACKEND_DIGEST}"
 )
 if ! kubectl -n kube-system get daemonset cilium >/dev/null 2>&1; then
   cilium install "${CILIUM_FLAGS[@]}"
-elif ! kubectl -n kube-system get deploy hubble-relay >/dev/null 2>&1; then
-  # Cluster created by an older version of this script: add Hubble in place.
+elif ! kubectl -n kube-system get deploy hubble-ui \
+    -o jsonpath='{.spec.template.spec.containers[*].image}' 2>/dev/null \
+    | grep -q "hubble-ui:${HUBBLE_UI_VERSION}@"; then
+  # Cluster created by an older version of this script: bring Hubble up to date.
   cilium upgrade "${CILIUM_FLAGS[@]}"
 fi
 
