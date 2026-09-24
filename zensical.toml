@@ -10,7 +10,7 @@ site_url = "https://karectl.github.io/kid/"
 repo_url = "https://github.com/karectl/kid"
 repo_name = "karectl/kid"
 edit_uri = "edit/main/docs/"
-copyright = "Training material for the K8TRE community. Demo credentials only: never use this environment for real data."
+copyright = "Copyright (c) 2026 Lancashire Teaching Hospitals NHS Foundation Trust. Training material for the K8TRE community. Demo credentials only: never use this environment for real data."
 
 nav = [
   { "Home" = "index.md" },
