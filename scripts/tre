@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# tre - small helper for the KID training cluster.
+#
+#   tre info         URLs and demo credentials
+#   tre status       Argo CD applications and any unhealthy pods
+#   tre workspaces   running notebook servers with their resources
+#   tre usage        CPU / memory usage of nodes and the heaviest pods
+#   tre hubble       start a background port-forward so `hubble observe` works
+#   tre sync         ask Argo CD to re-read Git now instead of waiting ~60s
+#   tre bootstrap    re-run the dev container bootstrap
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export KUBECONFIG="${KUBECONFIG:-${HOME}/.kube/config}"
+
+bold() { printf '\033[1m%s\033[0m\n' "$*"; }
+
+public_url() {
+  kubectl -n jupyterhub get configmap cluster-domain \
+    -o jsonpath='{.data.PUBLIC_URL}' 2>/dev/null || echo "http://localhost"
+}
+
+cmd_info() {
+  local url argopw
+  url="$(public_url)"
+  argopw="$(kubectl -n argocd get secret argocd-initial-admin-secret \
+    -o jsonpath='{.data.password}' 2>/dev/null | base64 -d 2>/dev/null || echo '<not ready>')"
+  bold "KID - K8TRE in Docker"
+  cat <<EOF
+  Portal      ${url}/
+  JupyterHub  ${url}/jupyter/          researcher1 / researcher  (project alpha)
+                                       researcher2 / researcher  (project beta)
+                                       researcher3 / researcher  (alpha + beta)
+                                       tre-admin   / admin       (JupyterHub admin)
+  Hubble UI   ${url}/hubble/
+  Argo CD     ${url}/argocd/           admin / ${argopw}
+  Keycloak    ${url}/auth/admin/       admin / admin
+  Docs        ${ROOT}/docs  (or the GitHub Pages site for this repo)
+EOF
+}
+
+cmd_status() {
+  bold "Argo CD applications"
+  kubectl -n argocd get applications.argoproj.io \
+    -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status,REVISION:.status.sync.revision' \
+    2>/dev/null || echo "  (Argo CD not ready yet)"
+  echo
+  bold "Pods that are not Running/Completed"
+  kubectl get pods -A --no-headers 2>/dev/null \
+    | awk '$4 != "Running" && $4 != "Completed" {print "  " $0; n++} END {if (!n) print "  none - all good"}'
+}
+
+cmd_workspaces() {
+  bold "Notebook servers (component=singleuser-server)"
+  kubectl get pods -A -l component=singleuser-server \
+    -o custom-columns='NAMESPACE:.metadata.namespace,POD:.metadata.name,USER:.metadata.annotations.hub\.jupyter\.org/username,STATUS:.status.phase,CPU_LIM:.spec.containers[0].resources.limits.cpu,MEM_LIM:.spec.containers[0].resources.limits.memory,NODE_IP:.status.podIP'
+}
+
+cmd_usage() {
+  bold "Node"
+  kubectl top node || echo "  metrics-server not ready yet"
+  echo
+  bold "Top 15 pods by memory"
+  kubectl top pod -A --sort-by=memory 2>/dev/null | head -16 || true
+}
+
+cmd_hubble() {
+  if pgrep -f "cilium hubble port-forward" >/dev/null; then
+    echo "Hubble port-forward already running."
+  else
+    nohup cilium hubble port-forward >/tmp/hubble-port-forward.log 2>&1 &
+    sleep 3
+    echo "Hubble relay forwarded to localhost:4245 (log: /tmp/hubble-port-forward.log)."
+  fi
+  hubble status || true
+  echo "Try:  hubble observe --namespace project-alpha --follow"
+}
+
+cmd_sync() {
+  for app in $(kubectl -n argocd get applications.argoproj.io -o name); do
+    kubectl -n argocd annotate "${app}" argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+  done
+  echo "Refresh requested for all Argo CD applications."
+}
+
+case "${1:-info}" in
+  info)       cmd_info ;;
+  status)     cmd_status ;;
+  workspaces) cmd_workspaces ;;
+  usage)      cmd_usage ;;
+  hubble)     cmd_hubble ;;
+  sync)       cmd_sync ;;
+  bootstrap)  exec bash "${ROOT}/.devcontainer/bootstrap.sh" ;;
+  -h|--help|help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) echo "unknown command: $1 (try 'tre help')" >&2; exit 1 ;;
+esac

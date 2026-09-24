@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: devcontainer.Dockerfile
-    container_name: karectl-demo-devcontainer
+    container_name: kid-devcontainer
     volumes:
       - ..:/workspace:cached
       - k8s-config:/kubeconfig:cached
@@ -37,7 +37,7 @@ services:
       - k3s-server:/var/lib/rancher/k3s
       - k8s-config:/output
     ports:
-      - "80:80"
+      - "${TRE_HTTP_PORT:-80}:80"
 
 volumes:
   k3s-server: {}
