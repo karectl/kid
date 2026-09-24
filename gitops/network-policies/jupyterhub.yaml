@@ -1,0 +1,70 @@
+# Network policy for the JupyterHub control plane (hub + proxy).
+#
+# Once a CiliumNetworkPolicy selects a pod, anything not explicitly allowed in
+# that direction is dropped. Here we select every pod in the namespace
+# (endpointSelector: {}) and allow only what JupyterHub needs.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: jupyterhub-baseline
+  namespace: jupyterhub
+spec:
+  description: JupyterHub may reach DNS, the Kubernetes API, Keycloak and project workspaces.
+  endpointSelector: {}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # hub <-> proxy inside this namespace
+    - toEndpoints:
+        - {}
+    # KubeSpawner talks to the API server to create workspace pods.
+    - toEntities:
+        - kube-apiserver
+    # OAuth token and userinfo calls to Keycloak.
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: keycloak
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    # Proxy -> workspace (user traffic) and hub -> workspace (health checks),
+    # for workspaces in any namespace labelled as a research project.
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.cilium.k8s.namespace.labels.k8tre.io/type: project
+            component: singleuser-server
+      toPorts:
+        - ports:
+            - port: "8888"
+              protocol: TCP
+  ingress:
+    # hub <-> proxy inside this namespace
+    - fromEndpoints:
+        - {}
+    # Browser traffic arrives through Traefik.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    # Workspaces call the hub API.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.cilium.k8s.namespace.labels.k8tre.io/type: project
+            component: singleuser-server
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP

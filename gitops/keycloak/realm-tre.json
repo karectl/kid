@@ -1,9 +1,35 @@
 {
   "realm": "tre",
   "enabled": true,
-  "displayName": "Karectl Demo",
+  "displayName": "KID Training TRE",
   "sslRequired": "none",
   "registrationAllowed": false,
+  "groups": [
+    {
+      "name": "alpha",
+      "attributes": {
+        "description": [
+          "Members may use research project alpha"
+        ]
+      }
+    },
+    {
+      "name": "beta",
+      "attributes": {
+        "description": [
+          "Members may use research project beta"
+        ]
+      }
+    },
+    {
+      "name": "tre-admins",
+      "attributes": {
+        "description": [
+          "JupyterHub administrators"
+        ]
+      }
+    }
+  ],
   "clients": [
     {
       "clientId": "jupyterhub",
@@ -14,9 +40,33 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "secret": "jupyterhub-demo-secret",
-      "redirectUris": ["*"],
-      "webOrigins": ["*"],
-      "defaultClientScopes": ["profile", "email", "roles"]
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ],
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "claim.name": "groups",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
     }
   ],
   "users": [
@@ -25,12 +75,104 @@
       "enabled": true,
       "emailVerified": true,
       "email": "researcher1@example.invalid",
-      "firstName": "Research",
-      "lastName": "User",
+      "firstName": "Ada",
+      "lastName": "Alpha",
       "credentials": [
-        { "type": "password", "value": "researcher", "temporary": false }
+        {
+          "type": "password",
+          "value": "researcher",
+          "temporary": false
+        }
       ],
-      "realmRoles": ["default-roles-tre"]
+      "realmRoles": [
+        "default-roles-tre"
+      ],
+      "groups": [
+        "/alpha"
+      ]
+    },
+    {
+      "username": "researcher2",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "researcher2@example.invalid",
+      "firstName": "Ben",
+      "lastName": "Beta",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "researcher",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-tre"
+      ],
+      "groups": [
+        "/beta"
+      ]
+    },
+    {
+      "username": "researcher3",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "researcher3@example.invalid",
+      "firstName": "Cam",
+      "lastName": "Both",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "researcher",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-tre"
+      ],
+      "groups": [
+        "/alpha",
+        "/beta"
+      ]
+    },
+    {
+      "username": "researcher4",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "researcher4@example.invalid",
+      "firstName": "Dee",
+      "lastName": "Nogroup",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "researcher",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-tre"
+      ],
+      "groups": []
+    },
+    {
+      "username": "tre-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "tre-admin@example.invalid",
+      "firstName": "Tre",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-tre"
+      ],
+      "groups": [
+        "/tre-admins"
+      ]
     }
   ]
 }

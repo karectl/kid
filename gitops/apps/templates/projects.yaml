@@ -1,0 +1,33 @@
+{{/*
+One Application per research project. The project chart (gitops/projects/chart)
+creates the namespace, quotas, storage, RBAC and network policy.
+*/}}
+{{- range .Values.projects }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: project-{{ .name }}
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    k8tre.io/type: project
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ $.Values.repoURL }}
+    targetRevision: {{ $.Values.revision }}
+    path: gitops/projects/chart
+    helm:
+      releaseName: project-{{ .name }}
+      valuesObject:
+        {{- toYaml . | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: project-{{ .name }}
+  syncPolicy:
+    {{- include "kid.syncPolicy" (dict) | nindent 4 }}
+{{- end }}

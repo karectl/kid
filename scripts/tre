@@ -31,6 +31,7 @@ cmd_info() {
   JupyterHub  ${url}/jupyter/          researcher1 / researcher  (project alpha)
                                        researcher2 / researcher  (project beta)
                                        researcher3 / researcher  (alpha + beta)
+                                       researcher4 / researcher  (no project)
                                        tre-admin   / admin       (JupyterHub admin)
   Hubble UI   ${url}/hubble/
   Argo CD     ${url}/argocd/           admin / ${argopw}

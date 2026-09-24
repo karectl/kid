@@ -1,0 +1,52 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-workspaces
+  annotations:
+    policies.kyverno.io/title: Disallow privileged workspaces
+    policies.kyverno.io/category: TRE workspaces
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      A privileged container, or one sharing the node's network or filesystem,
+      can escape its sandbox and bypass network policy. Pod Security Admission
+      (baseline) blocks this too; Kyverno adds a clear message and a report.
+spec:
+  background: true
+  rules:
+    - name: no-privileged-containers
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector:
+                matchLabels:
+                  k8tre.io/type: project
+      validate:
+        failureAction: Enforce
+        message: Privileged containers are not allowed in research projects.
+        pattern:
+          spec:
+            =(initContainers):
+              - =(securityContext):
+                  =(privileged): "false"
+            containers:
+              - =(securityContext):
+                  =(privileged): "false"
+    - name: no-host-namespaces-or-paths
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector:
+                matchLabels:
+                  k8tre.io/type: project
+      validate:
+        failureAction: Enforce
+        message: Workspaces may not use the node's network, PID/IPC namespaces or filesystem (hostPath).
+        pattern:
+          spec:
+            =(hostNetwork): "false"
+            =(hostPID): "false"
+            =(hostIPC): "false"
+            =(volumes):
+              - X(hostPath): "null"

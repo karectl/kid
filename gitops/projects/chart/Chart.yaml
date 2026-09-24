@@ -1,0 +1,7 @@
+apiVersion: v2
+name: tre-project
+description: >-
+  Everything a research project needs in the KID training TRE: a namespace,
+  resource limits, storage, RBAC for JupyterHub and a network policy.
+type: application
+version: 0.1.0

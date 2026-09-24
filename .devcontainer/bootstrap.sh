@@ -121,7 +121,7 @@ fi
 PUBLIC_URL="${PUBLIC_URL%/}"
 DOMAIN="${PUBLIC_URL#*://}"
 
-for ns in keycloak jupyterhub portal; do
+for ns in keycloak jupyterhub; do
   kubectl create namespace "${ns}" --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n "${ns}" create configmap cluster-domain \
     --from-literal=DOMAIN="${DOMAIN}" \

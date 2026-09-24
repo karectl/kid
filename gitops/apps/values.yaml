@@ -1,0 +1,40 @@
+# Filled in by the root Application (see gitops/root-app.yaml).
+repoURL: https://github.com/karectl/kid.git
+revision: main
+
+# Kyverno policy engine. Set KID_ENABLE_KYVERNO=false before bootstrapping to
+# save ~300 MB of RAM on small laptops.
+kyverno:
+  enabled: true
+  chartVersion: 3.3.4
+
+# ---------------------------------------------------------------------------
+# Research projects
+# ---------------------------------------------------------------------------
+# Each entry becomes an Argo CD Application that renders gitops/projects/chart
+# into the namespace "project-<name>". Members of the Keycloak group <name>
+# can launch workspaces in it. See docs: labs/06-new-project.md
+projects:
+  - name: alpha
+    displayName: Project Alpha
+    description: Cardiac imaging cohort (synthetic). Small workspaces only.
+    image: quay.io/jupyter/minimal-notebook:2026-08-10
+    sizes: [small]
+    quota:
+      cpu: "2"
+      memory: 3Gi
+      pods: 4
+      storage: 5Gi
+    sharedStorage: 1Gi
+
+  - name: beta
+    displayName: Project Beta
+    description: Population health linkage study (synthetic). Small or medium workspaces.
+    image: quay.io/jupyter/minimal-notebook:2026-08-10
+    sizes: [small, medium]
+    quota:
+      cpu: "3"
+      memory: 4Gi
+      pods: 4
+      storage: 5Gi
+    sharedStorage: 2Gi

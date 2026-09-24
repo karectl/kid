@@ -1,0 +1,23 @@
+# Upper bound on everything running in the project, summed across all users.
+# A workspace that would push the project over these numbers is rejected by
+# the API server ("exceeded quota") and never starts.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: project-quota
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+spec:
+  hard:
+    limits.cpu: {{ .Values.quota.cpu | quote }}
+    limits.memory: {{ .Values.quota.memory | quote }}
+    requests.cpu: {{ .Values.quota.cpu | quote }}
+    requests.memory: {{ .Values.quota.memory | quote }}
+    pods: {{ .Values.quota.pods | quote }}
+    persistentvolumeclaims: "10"
+    requests.storage: {{ .Values.quota.storage | quote }}
+    # Only the TRE storage classes may be used in a project namespace.
+    local-path.storageclass.storage.k8s.io/persistentvolumeclaims: "0"
+    services.loadbalancers: "0"
+    services.nodeports: "0"

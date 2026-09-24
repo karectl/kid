@@ -1,0 +1,50 @@
+{{- if .Values.kyverno.enabled }}
+{{/* Kyverno is installed straight from its upstream Helm repository. */}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: {{ .Values.kyverno.chartVersion }}
+    helm:
+      releaseName: kyverno
+      valuesObject:
+        # Helm hooks that run bitnami/kubectl jobs: not needed under Argo CD.
+        webhooksCleanup:
+          enabled: false
+        policyReportsCleanup:
+          enabled: false
+        # Not used in the labs; saves ~100 MB.
+        cleanupController:
+          enabled: false
+        admissionController:
+          replicas: 1
+        backgroundController:
+          replicas: 1
+        reportsController:
+          replicas: 1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    {{- include "kid.syncPolicy" (dict "createNamespace" true) | nindent 4 }}
+  ignoreDifferences:
+    # Kyverno manages its own webhook configurations at runtime.
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jqPathExpressions: [".webhooks[]?.clientConfig.caBundle"]
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      jqPathExpressions: [".webhooks[]?.clientConfig.caBundle"]
+---
+{{ include "kid.application" (dict "root" $ "name" "kyverno-policies" "path" "gitops/kyverno" "namespace" "kyverno" "wave" "1" "skipDryRun" true) }}
+{{- end }}
