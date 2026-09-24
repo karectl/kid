@@ -1,0 +1,24 @@
+# Project shared area, mounted at /home/jovyan/shared in every workspace of the
+# project. Only pods in this namespace can mount it: a PVC can't be referenced
+# across namespaces.
+#
+# Caveat for this single-node demo: local-path volumes are ReadWriteOnce, which
+# Kubernetes enforces per *node*, so every pod on our one node can share it. A
+# multi-node TRE would use a ReadWriteMany class (NFS, Azure Files, CephFS...).
+#
+# The tre-project-shared StorageClass has reclaimPolicy: Retain, so if the
+# project (and this claim) is deleted, the PersistentVolume and its data stay
+# behind for a deliberate archive-or-destroy decision.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: project-shared
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+spec:
+  storageClassName: tre-project-shared
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: {{ .Values.sharedStorage }}

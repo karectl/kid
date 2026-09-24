@@ -1,0 +1,7 @@
+apiVersion: v2
+name: kid-apps
+description: >-
+  App of apps for the KID training TRE. Renders one Argo CD Application per
+  platform component and per research project.
+type: application
+version: 0.1.0

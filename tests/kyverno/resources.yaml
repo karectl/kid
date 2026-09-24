@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: project-alpha
+  labels:
+    k8tre.io/type: project
+    k8tre.io/project: alpha
+---
+# Shaped like the pod KubeSpawner creates for researcher1.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workspace
+  namespace: project-alpha
+  labels:
+    component: singleuser-server
+    k8tre.io/project: alpha
+spec:
+  securityContext:
+    fsGroup: 100
+  containers:
+    - name: notebook
+      image: quay.io/jupyter/minimal-notebook:2026-08-10
+      securityContext:
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+      resources:
+        limits: { cpu: 500m, memory: 1Gi }
+        requests: { cpu: 100m, memory: 256Mi }
+      volumeMounts:
+        - { name: home, mountPath: /home/jovyan }
+  volumes:
+    - name: home
+      persistentVolumeClaim: { claimName: home-researcher1 }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: evil
+  namespace: project-alpha
+spec:
+  containers:
+    - name: evil
+      image: nginx:1.27
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wrong-project
+  namespace: project-alpha
+  labels:
+    k8tre.io/project: beta
+spec:
+  containers:
+    - name: nb
+      image: quay.io/jupyter/minimal-notebook:2026-08-10
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged
+  namespace: project-alpha
+  labels:
+    k8tre.io/project: alpha
+spec:
+  containers:
+    - name: nb
+      image: quay.io/jupyter/minimal-notebook:2026-08-10
+      securityContext:
+        privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath
+  namespace: project-alpha
+  labels:
+    k8tre.io/project: alpha
+spec:
+  containers:
+    - name: nb
+      image: quay.io/jupyter/minimal-notebook:2026-08-10
+  volumes:
+    - name: node-disk
+      hostPath: { path: /var/lib/rancher/k3s/storage }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: latest
+  namespace: project-alpha
+  labels:
+    k8tre.io/project: alpha
+spec:
+  containers:
+    - name: nb
+      image: quay.io/jupyter/minimal-notebook:latest

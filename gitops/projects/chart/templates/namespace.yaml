@@ -1,0 +1,21 @@
+# The namespace IS the project boundary: RBAC, quotas, network policy and
+# storage are all scoped to it.
+#
+# JupyterHub discovers projects by listing namespaces with the label
+# k8tre.io/type=project and builds its launch menu from the annotations below.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+    k8tre.io/type: project
+    # Pod Security Admission (built into Kubernetes): reject privileged pods,
+    # host namespaces, hostPath etc.; warn about anything short of "restricted".
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    k8tre.io/display-name: {{ .Values.displayName | quote }}
+    k8tre.io/description: {{ .Values.description | quote }}
+    k8tre.io/image: {{ .Values.image | quote }}
+    k8tre.io/sizes: {{ include "project.sizes" . | quote }}

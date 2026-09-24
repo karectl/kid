@@ -20,16 +20,18 @@ spec:
             - { name: KC_BOOTSTRAP_ADMIN_PASSWORD, value: admin }
             - { name: KC_HTTP_ENABLED, value: "true" }
             - { name: KC_HTTP_RELATIVE_PATH, value: /auth }
-            - name: DOMAIN
+            # Public URL (Codespaces https://...app.github.dev or http://localhost),
+            # written by bootstrap.sh. Keycloak puts it in tokens and redirects.
+            - name: PUBLIC_URL
               valueFrom:
                 configMapKeyRef:
                   name: cluster-domain
-                  key: DOMAIN
+                  key: PUBLIC_URL
             - name: KC_HOSTNAME
-              value: "https://$(DOMAIN)/auth"
+              value: "$(PUBLIC_URL)/auth"
             - { name: KC_HOSTNAME_STRICT, value: "false" }
             - { name: KC_PROXY_HEADERS, value: xforwarded }
-            - { name: JAVA_OPTS_APPEND, value: "-Xms256m -Xmx1024m" }
+            - { name: JAVA_OPTS_APPEND, value: "-Xms128m -Xmx512m" }
           ports:
             - { containerPort: 8080, name: http }
           volumeMounts:
@@ -40,8 +42,8 @@ spec:
             periodSeconds: 10
             failureThreshold: 30
           resources:
-            requests: { cpu: 200m, memory: 512Mi }
-            limits: { memory: 1500Mi }
+            requests: { cpu: 100m, memory: 512Mi }
+            limits: { memory: 1Gi }
       volumes:
         - name: realm
           configMap: { name: keycloak-realm }

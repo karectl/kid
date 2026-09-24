@@ -1,0 +1,11 @@
+{{/* Wave 0: cluster-wide building blocks and identity. */}}
+{{ include "kid.application" (dict "root" $ "name" "platform" "path" "gitops/platform" "namespace" "kube-system" "wave" "0") }}
+---
+{{ include "kid.application" (dict "root" $ "name" "keycloak" "path" "gitops/keycloak" "namespace" "keycloak" "wave" "0" "createNamespace" true) }}
+---
+{{ include "kid.application" (dict "root" $ "name" "portal" "path" "gitops/portal" "namespace" "portal" "wave" "0" "createNamespace" true) }}
+---
+{{/* Wave 1: workspace orchestration. */}}
+{{ include "kid.application" (dict "root" $ "name" "jupyterhub" "path" "gitops/jupyterhub" "namespace" "jupyterhub" "wave" "1" "createNamespace" true) }}
+---
+{{ include "kid.application" (dict "root" $ "name" "network-policies" "path" "gitops/network-policies" "namespace" "jupyterhub" "wave" "1") }}

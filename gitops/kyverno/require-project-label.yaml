@@ -1,0 +1,38 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-project-label
+  annotations:
+    policies.kyverno.io/title: Require project label
+    policies.kyverno.io/category: TRE workspaces
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: >-
+      Every pod in a project must say which project it belongs to, and it must
+      match the namespace. Labels drive network policy, cost reporting and audit,
+      so a mislabelled pod is a governance problem. JupyterHub sets the label
+      automatically.
+spec:
+  background: true
+  rules:
+    - name: project-label-matches-namespace
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector:
+                matchLabels:
+                  k8tre.io/type: project
+      context:
+        - name: nsProject
+          apiCall:
+            urlPath: "/api/v1/namespaces/{{ request.object.metadata.namespace }}"
+            jmesPath: 'metadata.labels."k8tre.io/project"'
+      validate:
+        failureAction: Enforce
+        message: >-
+          Pods in {{ request.object.metadata.namespace }} must carry the label
+          k8tre.io/project={{ nsProject }}.
+        pattern:
+          metadata:
+            labels:
+              k8tre.io/project: "{{ nsProject }}"

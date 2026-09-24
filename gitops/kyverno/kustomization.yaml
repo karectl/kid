@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Kyverno policies ("guardrails as code") for research project namespaces.
+# Every rule is scoped with a namespaceSelector on k8tre.io/type=project, so
+# the platform's own namespaces are unaffected.
+resources:
+  - rbac.yaml
+  - restrict-image-registries.yaml
+  - disallow-privileged.yaml
+  - require-project-label.yaml
+  - disallow-latest-tag.yaml
+  - generate-default-deny.yaml
