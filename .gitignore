@@ -2,3 +2,8 @@
 *.tmp
 /tmp/
 kubeconfig.yaml
+site/
+.cache/
+__pycache__/
+.pytest_cache/
+kubescape-report.html
