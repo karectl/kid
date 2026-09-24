@@ -20,7 +20,9 @@
 │   ├── kyverno/                   # ClusterPolicies + RBAC for generate
 │   ├── projects/chart/            # Helm chart: everything one project needs
 │   └── portal/                    # landing page
-├── scripts/tre                    # helper CLI (tre info, status, hubble...)
+├── scripts/
+│   ├── tre                        # helper CLI (tre info, status, hubble...)
+│   └── validate.sh                # static checks run by CI (helm, kustomize, kubeconform)
 ├── tests/
 │   ├── test_tre_config.py         # pytest: spawner logic against real KubeSpawner
 │   └── kyverno/                   # kyverno CLI tests for the policies
