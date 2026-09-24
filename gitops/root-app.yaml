@@ -1,3 +1,12 @@
+# The Argo CD "app of apps".
+#
+# This file is a template: bootstrap.sh fills in ${KID_GITOPS_REPO},
+# ${KID_GITOPS_REVISION} and ${KID_ENABLE_KYVERNO} with envsubst and applies
+# it. Don't `kubectl apply` it directly.
+#
+# It points Argo CD at gitops/apps, a tiny Helm chart that renders one Argo CD
+# Application per component (and per research project), all following the
+# same repository and branch.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,9 +15,15 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Alwin-K-Thomas/karectl-demo.git
-    targetRevision: feature/at-codespace-k3s
+    repoURL: ${KID_GITOPS_REPO}
+    targetRevision: ${KID_GITOPS_REVISION}
     path: gitops/apps
+    helm:
+      valuesObject:
+        repoURL: ${KID_GITOPS_REPO}
+        revision: ${KID_GITOPS_REVISION}
+        kyverno:
+          enabled: ${KID_ENABLE_KYVERNO}
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -17,5 +32,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - ServerSideApply=true

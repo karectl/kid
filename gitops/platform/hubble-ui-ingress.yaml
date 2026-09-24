@@ -1,0 +1,22 @@
+# Hubble UI is installed by the Cilium CLI (bootstrap.sh) with
+# hubble.ui.baseUrl=/hubble/, so it can be served under a sub-path.
+#
+# NOTE: Hubble UI has no login. Fine for a throw-away training cluster; in a
+# real TRE put it behind an authenticating proxy or keep it internal.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hubble-ui
+  namespace: kube-system
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /hubble
+            pathType: Prefix
+            backend:
+              service:
+                name: hubble-ui
+                port:
+                  number: 80

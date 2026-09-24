@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Cluster-wide building blocks that aren't owned by any one application.
+resources:
+  - storageclasses.yaml
+  - hubble-ui-ingress.yaml

@@ -1,56 +1,111 @@
+# Zero to JupyterHub values for the KID training TRE.
+# Chart reference: https://z2jh.jupyter.org/en/stable/resources/reference.html
 hub:
   baseUrl: /jupyter
   networkPolicy:
-    enabled: false
+    enabled: false   # replaced by CiliumNetworkPolicies (gitops/network-policies)
   config:
     JupyterHub:
       authenticator_class: generic-oauth
     GenericOAuthenticator:
       client_id: jupyterhub
-      client_secret: jupyterhub-demo-secret
+      client_secret: jupyterhub-demo-secret   # demo only - use a Secret in real life
       username_claim: preferred_username
       login_service: Keycloak
-      allow_all: true
+      scope: [openid, profile, email]
       validate_server_cert: false
-      scope: ["openid", "profile", "email"]
+      # Any user in the Keycloak "tre" realm may log in; what they can *launch*
+      # is decided by their groups (see files/tre_config.py).
+      allow_all: true
+      # Copy Keycloak groups into JupyterHub groups at every login.
+      manage_groups: true
+      auth_state_groups_key: oauth_user.groups
+      admin_groups: [tre-admins]
   extraEnv:
-    - name: DOMAIN
+    PUBLIC_URL:
       valueFrom:
         configMapKeyRef:
           name: cluster-domain
-          key: DOMAIN
+          key: PUBLIC_URL
+  extraVolumes:
+    - name: tre-config
+      configMap:
+        name: jupyterhub-tre-config
+  extraVolumeMounts:
+    - name: tre-config
+      mountPath: /etc/jupyterhub/tre
+      readOnly: true
   extraConfig:
-    domain-oauth-urls: |
+    00-oauth-urls: |
       import os
-      _domain = os.environ["DOMAIN"]
-      c.GenericOAuthenticator.oauth_callback_url = f"https://{_domain}/jupyter/hub/oauth_callback"
-      c.GenericOAuthenticator.authorize_url = f"https://{_domain}/auth/realms/tre/protocol/openid-connect/auth"
-      c.GenericOAuthenticator.token_url = "http://keycloak.keycloak.svc.cluster.local/auth/realms/tre/protocol/openid-connect/token"
-      c.GenericOAuthenticator.userdata_url = "http://keycloak.keycloak.svc.cluster.local/auth/realms/tre/protocol/openid-connect/userinfo"
-      c.Spawner.http_timeout = 120
+      _public = os.environ["PUBLIC_URL"].rstrip("/")
+      # Browser-facing URLs use the public address...
+      c.GenericOAuthenticator.oauth_callback_url = f"{_public}/jupyter/hub/oauth_callback"
+      c.GenericOAuthenticator.authorize_url = f"{_public}/auth/realms/tre/protocol/openid-connect/auth"
+      # ...server-to-server calls stay inside the cluster.
+      _kc = "http://keycloak.keycloak.svc.cluster.local/auth/realms/tre/protocol/openid-connect"
+      c.GenericOAuthenticator.token_url = f"{_kc}/token"
+      c.GenericOAuthenticator.userdata_url = f"{_kc}/userinfo"
+    10-tre-projects: |
+      exec(open("/etc/jupyterhub/tre/tre_config.py").read())
   resources:
     requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 512Mi }
+
 proxy:
   service:
     type: ClusterIP
   chp:
+    networkPolicy:
+      enabled: false
     resources:
-      requests: { cpu: 50m, memory: 128Mi }
+      requests: { cpu: 50m, memory: 64Mi }
+      limits: { memory: 256Mi }
+
 singleuser:
+  # Image, CPU and memory come from the selected project/size profile. These
+  # are only fallbacks.
   image:
     name: quay.io/jupyter/minimal-notebook
     tag: "2026-08-10"
-  storage:
-    type: none
-  memory: { guarantee: 512M, limit: 2G }
-  cpu: { guarantee: 0.1, limit: 1 }
+  memory: { guarantee: 256M, limit: 1G }
+  cpu: { guarantee: 0.1, limit: 0.5 }
+  startTimeout: 300
   networkPolicy:
-    enabled: false
+    enabled: false   # replaced by the project's CiliumNetworkPolicy
+  cloudMetadata:
+    # The chart's default adds a privileged init container to block the cloud
+    # metadata endpoint with iptables. Cilium policy already blocks it, and the
+    # privileged container would (rightly) be rejected by Pod Security / Kyverno.
+    blockWithIptables: false
+  storage:
+    type: dynamic
+    capacity: 1Gi
+    homeMountPath: /home/jovyan
+    dynamic:
+      storageClass: tre-user-home
+      # Created in the *project* namespace, so each user gets a separate home
+      # directory per project: nothing leaks between projects via $HOME.
+      pvcNameTemplate: home-{username}
+      storageAccessModes: [ReadWriteOnce]
+    # The project shared area. Every project namespace has a PVC with this
+    # name (gitops/projects/chart/templates/shared-storage.yaml).
+    extraVolumes:
+      - name: project-shared
+        persistentVolumeClaim:
+          claimName: project-shared
+    extraVolumeMounts:
+      - name: project-shared
+        mountPath: /home/jovyan/shared
+
 scheduling:
   userScheduler: { enabled: false }
+  userPlaceholder: { enabled: false }
 prePuller:
   hook: { enabled: false }
   continuous: { enabled: false }
+
 cull:
   enabled: true
-  timeout: 1800
+  timeout: 3600   # stop workspaces idle for an hour
+  every: 300

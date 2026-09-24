@@ -1,0 +1,18 @@
+# Lets the JupyterHub hub manage workspaces in THIS namespace only.
+# The permissions themselves live in the ClusterRole "tre-workspace-spawner"
+# (gitops/jupyterhub/rbac.yaml); a RoleBinding scopes them to one namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jupyterhub-spawner
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tre-workspace-spawner
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.hub.serviceAccount }}
+    namespace: {{ .Values.hub.namespace }}

@@ -1,0 +1,25 @@
+# Per-container defaults and ceilings. Defaults are applied to any container
+# that doesn't declare its own requests/limits; "max" rejects containers that
+# ask for more than any workspace size allows.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: project-limits
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 256Mi
+      max:
+        cpu: "1"
+        memory: 2Gi
+    - type: PersistentVolumeClaim
+      max:
+        storage: 5Gi

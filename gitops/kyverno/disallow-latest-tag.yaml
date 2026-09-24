@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  annotations:
+    policies.kyverno.io/title: Disallow the latest tag
+    policies.kyverno.io/category: TRE workspaces
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/description: >-
+      Reproducible research needs reproducible environments: ":latest" changes
+      under your feet. This policy only *audits* (reports) instead of blocking,
+      to show the difference between Audit and Enforce.
+spec:
+  background: true
+  rules:
+    - name: require-pinned-tag
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector:
+                matchLabels:
+                  k8tre.io/type: project
+      validate:
+        failureAction: Audit
+        message: Use a pinned image tag (for example a date tag), not ":latest" or no tag.
+        pattern:
+          spec:
+            containers:
+              - image: "*:* & !*:latest"

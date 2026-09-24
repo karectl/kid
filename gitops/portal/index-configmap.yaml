@@ -9,21 +9,53 @@ data:
     <html lang="en">
     <head>
       <meta charset="utf-8">
-      <title>karectl-demo</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>KID Training TRE</title>
       <style>
-        body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
-        h1 { font-size: 1.5rem; }
-        ul { line-height: 2; }
-        a { color: #2563eb; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        :root { --fg:#1f2330; --muted:#5b6275; --bg:#f7f7fb; --card:#fff; --line:#e3e5ee; --accent:#5b3cc4; }
+        @media (prefers-color-scheme: dark) {
+          :root { --fg:#e8e9f0; --muted:#a3a8ba; --bg:#15161c; --card:#1d1f27; --line:#2d303b; --accent:#a38bff; }
+        }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg);
+               max-width: 56rem; margin: 0 auto; padding: 2.5rem 1rem; line-height: 1.5; }
+        h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+        p.lead { color: var(--muted); margin: 0 0 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+        a.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: .6rem;
+                 padding: 1rem 1.1rem; color: inherit; text-decoration: none; }
+        a.card:hover { border-color: var(--accent); }
+        a.card strong { color: var(--accent); display: block; margin-bottom: .25rem; }
+        a.card span { color: var(--muted); font-size: .92rem; }
+        table { border-collapse: collapse; width: 100%; margin-top: .5rem; font-size: .95rem; }
+        th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--line); }
+        code { font-size: .9em; }
+        h2 { font-size: 1.1rem; margin-top: 2.5rem; }
+        .warn { color: var(--muted); font-size: .9rem; margin-top: 2rem; }
       </style>
     </head>
     <body>
-      <h1>karectl-demo</h1>
-      <ul>
-        <li><a href="/jupyter">JupyterHub</a></li>
-        <li><a href="/argocd">ArgoCD</a></li>
-        <li><a href="/keycloak">Keycloak Console</a></li>
-      </ul>
+      <h1>KID &mdash; K8TRE in Docker</h1>
+      <p class="lead">A single-node Kubernetes Trusted Research Environment demonstrator for training.</p>
+
+      <div class="grid">
+        <a class="card" href="/jupyter/"><strong>JupyterHub</strong><span>Launch a project workspace (researcher view).</span></a>
+        <a class="card" href="/hubble/"><strong>Hubble UI</strong><span>Watch network flows and policy drops live.</span></a>
+        <a class="card" href="/argocd/"><strong>Argo CD</strong><span>See the TRE declared in Git and kept in sync.</span></a>
+        <a class="card" href="/keycloak"><strong>Keycloak</strong><span>Manage users and project groups.</span></a>
+      </div>
+
+      <h2>Demo accounts</h2>
+      <table>
+        <tr><th>User</th><th>Password</th><th>Keycloak groups</th><th>Can launch in</th></tr>
+        <tr><td><code>researcher1</code></td><td><code>researcher</code></td><td>alpha</td><td>project-alpha</td></tr>
+        <tr><td><code>researcher2</code></td><td><code>researcher</code></td><td>beta</td><td>project-beta</td></tr>
+        <tr><td><code>researcher3</code></td><td><code>researcher</code></td><td>alpha, beta</td><td>either</td></tr>
+        <tr><td><code>researcher4</code></td><td><code>researcher</code></td><td>&ndash;</td><td>nothing (try it)</td></tr>
+        <tr><td><code>tre-admin</code></td><td><code>admin</code></td><td>tre-admins</td><td>JupyterHub admin panel</td></tr>
+      </table>
+      <p>Keycloak console: <code>admin</code> / <code>admin</code>. Argo CD: <code>admin</code> / run <code>tre info</code> in the dev container terminal.</p>
+
+      <p class="warn">Training environment only. All passwords are public and nothing here is fit for real data.</p>
     </body>
     </html>

@@ -1,0 +1,57 @@
+# What a workspace may talk to. Anything not listed is dropped - including the
+# internet, other projects and the Kubernetes API. Drops are visible in Hubble.
+#
+# Kyverno additionally generates a "default-deny" policy in this namespace
+# (gitops/kyverno/generate-default-deny.yaml) as a safety net for any other pod.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: workspace-baseline
+  namespace: {{ include "project.namespace" . }}
+  labels:
+    {{- include "project.labels" . | nindent 4 }}
+spec:
+  description: Workspaces reach DNS and the JupyterHub API; only JupyterHub reaches them.
+  endpointSelector:
+    matchLabels:
+      component: singleuser-server
+  ingress:
+    # The proxy forwards the user's browser traffic; the hub checks the
+    # server is alive. Nothing else - including other workspaces - gets in.
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.hub.namespace }}
+            app: jupyterhub
+            component: proxy
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.hub.namespace }}
+            app: jupyterhub
+            component: hub
+      toPorts:
+        - ports:
+            - port: "8888"
+              protocol: TCP
+  egress:
+    # DNS. The "dns" rule sends lookups through Cilium's DNS proxy, which makes
+    # them visible in Hubble and is required for toFQDNs allow-lists.
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # The JupyterHub API (activity reports, authentication of the user).
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.hub.namespace }}
+            app: jupyterhub
+            component: hub
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP

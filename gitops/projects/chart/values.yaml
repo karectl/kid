@@ -1,0 +1,51 @@
+# Defaults for a research project. Each project in gitops/apps/values.yaml
+# overrides these.
+
+# Short, DNS-safe project identifier. The namespace is "project-<name>" and the
+# Keycloak group whose members may use the project is "<name>".
+name: example
+displayName: Example project
+description: ""
+
+# Container image for workspaces. Must satisfy the Kyverno image policy
+# (quay.io/jupyter/*).
+image: quay.io/jupyter/minimal-notebook:2026-08-10
+
+# Workspace sizes offered to members of this project (see `sizeCatalogue`).
+sizes: [small]
+
+# Total resources all workspaces in the project may use together.
+quota:
+  cpu: "2"
+  memory: 3Gi
+  pods: 4
+  storage: 5Gi
+
+# Size of the project shared volume mounted at ~/shared in every workspace.
+sharedStorage: 1Gi
+
+# Internet egress allow-list. Empty (the default) means no internet at all.
+# Each entry is a DNS name (or a pattern such as "*.example.org") that
+# workspaces in this project may reach on port 443. See docs lab 04.
+internetAllowlist: []
+
+# Workspace sizes: "guarantee" is the request (reserved on the node), "limit" is
+# the hard ceiling (CPU is throttled, memory over the limit is OOM-killed).
+sizeCatalogue:
+  small:
+    displayName: "Small - 0.5 CPU, 1 GB RAM"
+    cpuGuarantee: 0.1
+    cpuLimit: 0.5
+    memGuarantee: 256M
+    memLimit: 1G
+  medium:
+    displayName: "Medium - 1 CPU, 2 GB RAM"
+    cpuGuarantee: 0.25
+    cpuLimit: 1
+    memGuarantee: 512M
+    memLimit: 2G
+
+# Where JupyterHub lives (for RBAC and network policy).
+hub:
+  namespace: jupyterhub
+  serviceAccount: hub

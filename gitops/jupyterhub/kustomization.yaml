@@ -4,7 +4,9 @@ namespace: jupyterhub
 
 resources:
   - ingress.yaml
+  - rbac.yaml
 
+# Zero to JupyterHub (Z2JH) Helm chart, inflated by Kustomize inside Argo CD.
 helmCharts:
   - name: jupyterhub
     repo: https://hub.jupyter.org/helm-chart/
@@ -13,10 +15,11 @@ helmCharts:
     namespace: jupyterhub
     valuesFile: values.yaml
 
-patches:
-  - patch: |-
-      $patch: delete
-      apiVersion: networking.k8s.io/v1
-      kind: NetworkPolicy
-      metadata:
-        name: proxy
+# The project-aware spawner logic lives in a normal Python file so it can be
+# read, linted and tested. The name gets a content hash, so editing the file
+# rolls the hub automatically.
+configMapGenerator:
+  - name: jupyterhub-tre-config
+    files:
+      - files/tre_config.py
+

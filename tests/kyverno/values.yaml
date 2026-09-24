@@ -1,0 +1,16 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Values
+metadata:
+  name: values
+namespaceSelector:
+  - name: project-alpha
+    labels:
+      k8tre.io/type: project
+      k8tre.io/project: alpha
+policies:
+  # Stands in for the API call that reads the namespace's project label.
+  - name: require-project-label
+    rules:
+      - name: project-label-matches-namespace
+        values:
+          nsProject: alpha

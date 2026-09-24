@@ -1,0 +1,18 @@
+# Pod Security "baseline" (what project namespaces enforce), as a Kyverno rule
+# so the offline check matches the admission the API server would apply.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: pss-baseline
+spec:
+  rules:
+    - name: baseline
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        failureAction: Enforce
+        podSecurity:
+          level: baseline
+          version: latest

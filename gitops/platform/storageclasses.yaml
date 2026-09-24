@@ -1,0 +1,28 @@
+# K8TRE's storage specification asks applications to request storage from a
+# set of pre-defined StorageClasses rather than "whatever the default is", so
+# that quality of service, backup and retention are explicit.
+#
+# In this demonstrator both classes use the k3s local-path provisioner, which
+# stores volumes as directories on the node. On a real cluster these would map
+# to e.g. Longhorn, Azure Files or NFS with different backup policies.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: tre-user-home
+  annotations:
+    description: Per-user home directories inside a project. Deleted with the claim.
+provisioner: rancher.io/local-path
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: tre-project-shared
+  annotations:
+    description: >-
+      Project shared area. Retained after the claim is deleted so that project
+      data survives accidental removal and can be archived deliberately.
+provisioner: rancher.io/local-path
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer

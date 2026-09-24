@@ -1,0 +1,12 @@
+# Versions shipped in the Z2JH 4.0.0 hub image (images/hub/requirements.txt).
+jupyterhub==5.2.1
+jupyterhub-kubespawner==7.0.0
+jupyterhub-idle-culler==1.4.0
+oauthenticator==17.1.0
+kubernetes-asyncio==31.1.0
+tornado==6.4.1
+pycurl==7.45.3  # the hub uses tornado's curl HTTP client
+# test tooling
+pytest
+pyyaml
+requests
