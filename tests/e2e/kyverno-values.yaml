@@ -1,0 +1,15 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Values
+metadata:
+  name: values
+namespaceSelector:
+  - name: project-beta
+    labels:
+      k8tre.io/type: project
+      k8tre.io/project: beta
+policies:
+  - name: require-project-label
+    rules:
+      - name: project-label-matches-namespace
+        values:
+          nsProject: beta

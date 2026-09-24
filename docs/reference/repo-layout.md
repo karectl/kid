@@ -25,6 +25,7 @@
 │   └── validate.sh                # static checks run by CI (helm, kustomize, kubeconform)
 ├── tests/
 │   ├── test_tre_config.py         # pytest: spawner logic against real KubeSpawner
+│   ├── e2e/                       # real hub + proxy vs mock Keycloak and fake Kubernetes API
 │   └── kyverno/                   # kyverno CLI tests for the policies
 ├── docs/                          # this site (Zensical)
 ├── zensical.toml                  # site configuration

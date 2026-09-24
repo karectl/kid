@@ -112,7 +112,7 @@ gitops/
   portal/             landing page
 scripts/tre           helper: info | status | workspaces | usage | hubble | sync | bootstrap
 scripts/validate.sh   static checks (also run in CI)
-tests/                pytest for the spawner logic, kyverno CLI tests for the policies
+tests/                spawner unit tests, JupyterHub end-to-end harness, Kyverno policy tests
 docs/, zensical.toml  training documentation (Zensical)
 ```
 
@@ -127,6 +127,7 @@ docs/, zensical.toml  training documentation (Zensical)
 ```bash
 scripts/validate.sh                                   # helm, kustomize, kubeconform (needs the CLIs)
 pip install -r tests/requirements.txt && pytest tests # JupyterHub project logic
+tests/e2e/run.sh                                      # real hub: login -> spawn, pod checked vs policies
 kyverno test tests/kyverno                            # Kyverno policies
 pip install zensical && zensical serve                # docs at http://localhost:8000
 ```

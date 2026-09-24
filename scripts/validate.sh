@@ -16,7 +16,7 @@ step() { printf '\n\033[1;34m== %s\033[0m\n' "$*"; }
 
 step "Shell scripts"
 if command -v shellcheck >/dev/null; then
-  shellcheck -S warning .devcontainer/bootstrap.sh scripts/tre scripts/validate.sh
+  shellcheck -S warning .devcontainer/bootstrap.sh scripts/tre scripts/validate.sh tests/e2e/run.sh
 else
   echo "shellcheck not installed - skipped"
 fi

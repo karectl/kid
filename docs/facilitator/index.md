@@ -68,8 +68,10 @@ For a **half day**, do labs 1, 2, 3, 4 and 7 and demo 8 and 9 from the front.
 * Everything runs on **one node**: no scheduling, affinity or multi-node storage.
 * No TLS inside the cluster; Codespaces provides HTTPS at the edge.
 * Hubble UI and the Argo CD admin account are for demonstration, not good practice.
-* Tests run in CI, but the full cluster needs privileged Docker and is **not** exercised end-to-end in
-  CI. The dry run is essential.
+* CI checks manifests, policies and the JupyterHub layer end to end (a real hub and proxy with a mock
+  Keycloak and a fake Kubernetes API; see `tests/e2e/`). The full cluster (Cilium enforcement,
+  Argo CD, image pulls) needs privileged Docker and is **not** exercised in CI, so the dry run is
+  essential.
 
 ## Implementation notes
 
