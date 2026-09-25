@@ -25,7 +25,7 @@ cmd_info() {
   url="$(public_url)"
   argopw="$(kubectl -n argocd get secret argocd-initial-admin-secret \
     -o jsonpath='{.data.password}' 2>/dev/null | base64 -d 2>/dev/null || echo '<not ready>')"
-  bold "KID - K8TRE in Docker"
+  bold "KID - KARECTL in Docker"
   cat <<EOF
   Portal      ${url}/
   JupyterHub  ${url}/jupyter/          researcher1 / researcher  (project alpha)

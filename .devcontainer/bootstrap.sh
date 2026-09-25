@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bootstraps the KID (K8TRE in Docker) training cluster.
+# Bootstraps the KID (KARECTL in Docker) training cluster.
 #
 # Runs once when the dev container is created (postCreateCommand) and is safe
 # to re-run by hand:  bash .devcontainer/bootstrap.sh

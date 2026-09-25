@@ -40,7 +40,7 @@ tre info
 ```
 
 ```text
-KID - K8TRE in Docker
+KID - KARECTL in Docker
   Portal      https://<name>-80.app.github.dev/
   JupyterHub  https://<name>-80.app.github.dev/jupyter/   researcher1 / researcher  (project alpha)
   ...

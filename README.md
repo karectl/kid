@@ -1,10 +1,12 @@
-# KID: K8TRE in Docker
+# KID: KARECTL in Docker
 
 A hands-on training environment for **Kubernetes-based Trusted Research Environments**, modelled
-on [K8TRE](https://docs.k8tre.org/latest/). It runs a small but realistic TRE inside a dev
+on [K8TRE](https://docs.k8tre.org/latest/) and [KARECTL](https://www.karectl.org) . It runs a small but realistic TRE inside a dev
 container, in **GitHub Codespaces** or on a **16 GB laptop** with VS Code Dev Containers, so
 research software engineers can launch workspaces, test the security controls and break things
 safely.
+
+![KID architecture](docs/assets/kid-karectl-wide.png)
 
 📘 **Training docs:** <https://karectl.github.io/kid/> (source in [`docs/`](docs/))
 

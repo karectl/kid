@@ -1,10 +1,10 @@
-# Documentation site for KID (K8TRE in Docker), built with Zensical.
+# Documentation site for KID (KARECTL in Docker), built with Zensical.
 #   Local preview:  pip install zensical && zensical serve
 #   Build:          zensical build --clean      (output in ./site)
 # Published to GitHub Pages by .github/workflows/docs.yml
 
 [project]
-site_name = "KID: K8TRE in Docker"
+site_name = "KID: KARECTL in Docker"
 site_description = "Hands-on training environment for Kubernetes-based Trusted Research Environments"
 site_url = "https://karectl.github.io/kid/"
 repo_url = "https://github.com/karectl/kid"

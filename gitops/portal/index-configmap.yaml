@@ -35,7 +35,7 @@ data:
       </style>
     </head>
     <body>
-      <h1>KID &mdash; K8TRE in Docker</h1>
+      <h1>KID &mdash; KARECTL in Docker</h1>
       <p class="lead">A single-node Kubernetes Trusted Research Environment demonstrator for training.</p>
 
       <div class="grid">

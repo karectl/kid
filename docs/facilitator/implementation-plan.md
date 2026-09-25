@@ -1,7 +1,7 @@
 # Implementation plan
 
 This page records the plan used to turn the original `karectl-demo` dev container into the
-**K8TRE in Docker (KID)** training environment. It is kept in the docs so facilitators can see
+**KARECTL in Docker (KID)** training environment. It is kept in the docs so facilitators can see
 *why* things are built the way they are.
 
 ## 1. Goals and non-goals
