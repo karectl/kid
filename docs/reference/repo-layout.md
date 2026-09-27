@@ -27,6 +27,8 @@
 │   ├── test_tre_config.py         # pytest: spawner logic against real KubeSpawner
 │   ├── e2e/                       # real hub + proxy vs mock Keycloak and fake Kubernetes API
 │   └── kyverno/                   # kyverno CLI tests for the policies
+├── AGENTS.md / CLAUDE.md          # guidance for coding agents (see Getting started)
+├── .agents/skills/                # agent skills (also linked from .claude/ and .github/)
 ├── docs/                          # this site (Zensical)
 ├── zensical.toml                  # site configuration
 └── .github/workflows/

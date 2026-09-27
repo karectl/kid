@@ -114,6 +114,8 @@ gitops/
   portal/             landing page
 scripts/tre           helper: info | status | workspaces | usage | hubble | sync | bootstrap
 scripts/validate.sh   static checks (also run in CI)
+AGENTS.md, CLAUDE.md   guidance for coding agents
+.agents/skills/       agent skills (linked from .claude/skills and .github/skills)
 tests/                spawner unit tests, JupyterHub end-to-end harness, Kyverno policy tests
 docs/, zensical.toml  training documentation (Zensical)
 ```
@@ -123,6 +125,13 @@ docs/, zensical.toml  training documentation (Zensical)
 1. Orientation · 2. Workspaces on demand · 3. Project isolation with Hubble · 4. Internet egress ·
 5. Storage · 6. CPU and memory · 7. A new project via GitOps · 8. Kyverno guardrails ·
 9. Kubescape posture · 10. Challenges. See the [labs](https://karectl.github.io/kid/labs/).
+
+## Working with a coding agent
+
+`AGENTS.md` (and `CLAUDE.md` for Claude Code) gives coding agents the context of this environment, and
+`.agents/skills/` holds skills for the labs, network policies, new projects, Kyverno policies,
+workspace configuration and troubleshooting (also linked as `.claude/skills` and `.github/skills`).
+See [Using a coding agent](https://karectl.github.io/kid/getting-started/coding-agents/).
 
 ## Development
 

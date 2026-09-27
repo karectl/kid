@@ -19,6 +19,7 @@ nav = [
     "getting-started/codespaces.md",
     "getting-started/local.md",
     "getting-started/first-steps.md",
+    "getting-started/coding-agents.md",
   ] },
   { "Concepts" = [
     "concepts/kubernetes-primer.md",
