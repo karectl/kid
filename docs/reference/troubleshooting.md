@@ -25,6 +25,20 @@ Start with `tre status`. It shows Argo CD application health and any pod that is
     `argocd login --core && argocd repo add https://github.com/<you>/kid.git --username <you> --password <PAT>`
     (with `kubectl config set-context --current --namespace=argocd` first).
 
+??? question "Argo CD: `lookup github.com on 10.43.0.10:53: server misbehaving`"
+    The cluster can't resolve names on the internet. CoreDNS (`10.43.0.10`) forwards external
+    lookups to an upstream DNS server, and your network is blocking it. Many corporate, university,
+    NHS and VPN networks only allow DNS to their own resolvers. Confirm it:
+    `kubectl -n kube-system logs -l k8s-app=kube-dns | grep timeout` shows
+    `read udp ...->8.8.8.8:53: i/o timeout`.
+
+    The k3s container normally picks up the DNS servers Docker uses (see
+    `.devcontainer/k3s-entrypoint.sh`). If it still fails, set `KID_UPSTREAM_DNS` to a resolver
+    your network allows (on the host, or in `.devcontainer/.env`), for example
+    `KID_UPSTREAM_DNS=192.168.65.7` on Docker Desktop, then **Dev Containers: Rebuild Container**
+    (the cluster volume survives). Check with
+    `kubectl run dnstest --rm -it --restart=Never --image=busybox:1.36 -- nslookup github.com`.
+
 ## Applications
 
 ??? question "`kyverno-policies` is Degraded / `no matches for kind ClusterPolicy`"
